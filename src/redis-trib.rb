@@ -95,7 +95,7 @@ class ClusterNode
         # Finally we group ranges with adiacent elements.
         slots = slots.reduce([]) {|a,b|
             if a.any? && b.first == (a[-1].last) + 1
-                a << [(a.pop.first), (b.last)]
+                a << [a.pop.first, b.last]
             else
                 a << b
             end
