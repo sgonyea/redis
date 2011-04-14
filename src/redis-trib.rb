@@ -85,7 +85,7 @@ class ClusterNode
         
         # First step: we want an increasing array of integers
         # for instance: [1,2,3,4,5,8,9,20,21,22,23,24,25,30]
-        slots = @slots.keys.sort
+        (slots = @slots.keys).sort!
 
         # As we want to aggregate adiacent slots we convert all the
         # slot integers into ranges (with just one element)
@@ -93,22 +93,22 @@ class ClusterNode
         slots.map!{|x| x..x}
 
         # Finally we group ranges with adiacent elements.
-        slots = slots.reduce([]) {|a,b|
-            if !a.empty? && b.first == (a[-1].last)+1
-                a[0..-2] + [(a[-1].first)..(b.last)]
+        slots = slots.each_cons(2).map {|a,b|
+            if b.first == (a.last)+1
+                (a.first)..(b.last)
             else
-                a + [b]
+                b
             end
         }
 
         # Now our task is easy, we just convert ranges with just one
         # element into a number, and a real range into a start-end format.
         # Finally we join the array using the comma as separator.
-        slots = slots.map{|x|
+        slots.map! {|x|
             x.count == 1 ? x.first.to_s : "#{x.first}-#{x.last}"
-        }.join(",")
+        }
 
-        "#{self.to_s.ljust(25)} slots:#{slots}"
+        self.to_s.ljust(25) << 'slots:' << slots.join(',')
     end
 
     def info
