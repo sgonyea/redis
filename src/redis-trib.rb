@@ -66,16 +66,14 @@ class ClusterNode
     end
 
     def flush_node_config
-        return if !@dirty
-        new = []
-        @slots.each{|s,val|
-            if val == :new
-                new << s
-                @slots[s] = true
-            end
-        }
-        @r.cluster("addslots",*new)
-        @dirty = false
+        if @dirty
+          new_slots = @slots.select {|s,val|
+              @slots[s] = true if val == :new
+          }
+          @r.cluster("addslots", *new_slots)
+
+          @dirty = false
+        end
     end
 
     def info_string
